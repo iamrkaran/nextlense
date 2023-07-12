@@ -27,4 +27,4 @@ const Test = (props: Props) => {
 }
 
 
-export default Test
+export default Test;
