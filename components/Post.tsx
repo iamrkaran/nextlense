@@ -59,7 +59,7 @@ const PostComponent = ({ post, session }: { post: any, session: any }) => {
                         alt="Logo"
                         width={24}
                         height={24}
-                        className="rounded-full"
+                        className="rounded-full" 
                     />
                     <h3 className="text-sm font-semibold">{postUser?.username}</h3>
 
@@ -124,8 +124,8 @@ const PostComponent = ({ post, session }: { post: any, session: any }) => {
             <div className="px-4 py-2 flex justify-start">
                 <h3 className="text-sm font-semibold ">
                     {post?.comments?.length > 0 && (
-                        <h3 className="text-sm font-semibold">
-                            View all {post?.comments?.length} comments</h3>
+                        <span className="text-sm font-semibold">
+                            View all {post?.comments?.length} comments</span>
                     )}
                 </h3>
             </div>

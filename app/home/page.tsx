@@ -27,26 +27,19 @@ const HomePage = ({ initialPosts }: { initialPosts: Post[] }) => {
   const [posts, setPosts] = React.useState<Post[]>(initialPosts);
   const [postLoading, setPostLoading] = React.useState<boolean>(false);
 
-  const fetchPosts = () => {
-    if (!session) return;
-
-    setPostLoading(true);
-    axios
-      .get('/posts')
-      .then((res) => {
+  React.useEffect(() => {
+    if (sessionStatus === 'authenticated') {
+      setPostLoading(true);
+      axios.get('/posts').then((res) => {
         setPosts(res.data);
         setPostLoading(false);
-        revalidateTag('posts');
-      })
-      .catch((err) => {
+      }).catch((err) => {
+        console.error(err);
         setPostLoading(false);
       });
-  };
-
-  // Fetch posts initially when the session changes
-  React.useEffect(() => {
-    fetchPosts();
-  }, [session]);
+    }
+  }
+  , [sessionStatus]);
 
   if (sessionStatus === 'loading' || postLoading) {
     return (
