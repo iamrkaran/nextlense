@@ -21,10 +21,10 @@ type Post = {
 
 type Session = ReturnType<typeof useSession>['data'];
 
-const HomePage = ({ initialPosts }: { initialPosts: Post[] }) => {
+const HomePage = () => {
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
-  const [posts, setPosts] = React.useState<Post[]>(initialPosts);
+  const [posts, setPosts] = React.useState<Post[]>([]);
   const [postLoading, setPostLoading] = React.useState<boolean>(false);
 
   React.useEffect(() => {
@@ -62,20 +62,5 @@ const HomePage = ({ initialPosts }: { initialPosts: Post[] }) => {
   );
 };
 
-export async function getServerSideProps(_ : any) {
-  let initialPosts = [];
-  try {
-    const res = await axios.get('/posts');
-    initialPosts = res.data;
-  } catch (err) {
-    console.error(err);
-  }
-
-  return {
-    props: {
-      initialPosts,
-    },
-  };
-}
 
 export default HomePage;
