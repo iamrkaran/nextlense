@@ -21,9 +21,13 @@ const Bookmark: React.FC<PostProps> = ({ postId, userId }) => {
         console.log('UserId or PostId is undefined');
       }
     }
-  
-    fetchSavedStatus();
+
+    if(userId && postId) {
+      fetchSavedStatus();
+    }
+    
   }, [postId, userId]);
+
   
 
   const handleBookmark = async () => {

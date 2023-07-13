@@ -13,7 +13,6 @@ export default function AuthProviders() {
         const fetchProviders = async () => { 
             const providers = await getProviders();
             setProviders(providers);
-            console.log(providers);
             setLoading(false);  
         };
         fetchProviders();

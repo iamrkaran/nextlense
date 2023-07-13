@@ -20,7 +20,6 @@ const Page = () => {
   const [session, setSession] = useState<CustomSession | null>(null);
   useEffect(() => {
     getSession().then((session: any) => {
-      console.log(session);
       setSession(session);
       if (session) {
         router.push(`/home`);
@@ -32,7 +31,7 @@ const Page = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen  p-6">
       <h1 className="mb-6 text-3xl font-bold text-blue-600">
-        Next lense Production Test cloased integration tests!.
+        Next lense Production Test closed integration tests!.
       </h1>
       <div className="text-2xl">Welcome {session ? session?.user?.name : 'Guest'}!</div>
 
