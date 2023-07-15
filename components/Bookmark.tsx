@@ -5,9 +5,10 @@ import axios from '@/config/axiosInstance'
 type PostProps = {
   postId: string;
   userId: string;
+  refresh:() => void;
 }
 
-const Bookmark: React.FC<PostProps> = ({ postId, userId }) => {
+const Bookmark: React.FC<PostProps> = ({ postId, userId, refresh}) => {
   const [isSaved, setIsSaved] = useState<boolean>(false);
 
   useEffect(() => {
@@ -32,6 +33,7 @@ const Bookmark: React.FC<PostProps> = ({ postId, userId }) => {
 
   const handleBookmark = async () => {
     await axios.post('/users/savedPosts', { userId, postId });
+    refresh();
     setIsSaved(!isSaved);
   }
 

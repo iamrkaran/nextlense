@@ -8,10 +8,39 @@ import AddComment from './AddComment';
 import PostDropdownMenu from './DropdownMenu';
 import { menuItems } from '@/constants/postMenuItems';
 import Bookmark from './Bookmark';
+import { useDispatch } from "react-redux";
+import { fetchPosts } from "@/reducers/postSlice";
+import { type } from 'os';
+import Comment from './Comment';
+import ViewAllComments from './ViewAllComments';
+import Follow from './Follow';
+
+type Post = {
+    _id: string;
+    user: string;
+    caption: string;
+    image: string;
+    createdDate: Date;
+    likes: string[];
+    comments: { user: string; text: string; createdDate: Date }[];
+};
+
+type PostComponentProps = {
+    post: Post;
+    session: any;
+    refreshData: () => void;
+};
 
 
-const PostComponent = ({ post, session }: { post: any, session: any }) => {
+const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
     const [liked, setLiked] = useState(false);
+    const dispatch = useDispatch();
+
+    const [showAllComments, setShowAllComments] = useState(false);
+
+    const handleToggleComments = () => {
+        setShowAllComments(!showAllComments);
+    };
 
     useEffect(() => {
         setLiked(post.likes.includes(session?.user?.id));
@@ -19,16 +48,22 @@ const PostComponent = ({ post, session }: { post: any, session: any }) => {
 
     const handleLike = async () => {
         try {
+            const updatedFollowingStatus = !liked;
+  
+            setLiked(updatedFollowingStatus); 
+
             const response = await axios.post('/posts/like', {
                 postId: post._id,
                 userId: session?.user?.id
             });
 
             if (response.status === 200) {
-                setLiked(!liked);
+                setLiked(!updatedFollowingStatus);
+                refreshData();
             }
         } catch (error) {
             console.error(error);
+            setLiked(!liked);
         }
     };
 
@@ -48,9 +83,17 @@ const PostComponent = ({ post, session }: { post: any, session: any }) => {
             fetchUser();
         }
     }, [post?.user]);
- 
 
-    return (  
+    const refresh = () => {
+        try {
+            dispatch(fetchPosts() as any);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+
+    return (
         <div className="max-w-md mx-auto bg-white rounded-md shadow-lg mb-4">
             <div className="flex items-center justify-between p-4">
                 <div className="flex items-center space-x-2">
@@ -59,9 +102,13 @@ const PostComponent = ({ post, session }: { post: any, session: any }) => {
                         alt="Logo"
                         width={24}
                         height={24}
-                        className="rounded-full" 
+                        className="rounded-full"
                     />
                     <h3 className="text-sm font-semibold">{postUser?.username}</h3>
+
+                    {session?.user?.id !== postUser?._id && (
+                    <Follow followerId={session?.user?.id} followingId={postUser?._id} />
+                  )}
 
                 </div>
                 <PostDropdownMenu items={menuItems} />
@@ -98,13 +145,23 @@ const PostComponent = ({ post, session }: { post: any, session: any }) => {
                         )}
 
                     </div>
+                    <Comment
+                        key={post._id}
+                        postId={post?._id}
+                        userId={session?.user?.id}
+                        session={session}
+                        refresh={refresh}
+                    />
 
 
-                    <FiMessageCircle className="text-gray-500" size={20} />
                     <FiShare className="text-gray-500" size={20} />
                 </div>
-                {/* <FiBookmark className="text-gray-500" size={20} /> */}
-                <Bookmark postId={post?._id} userId={session?.user?.id} />
+                <Bookmark
+                    postId={post?._id}
+                    userId={session?.user?.id}
+
+                    refresh={refresh}
+                />
             </div>
             <div className="flex items-center justify-between px-4 py-2">
                 <div className="flex items-center space-x-4">
@@ -122,19 +179,23 @@ const PostComponent = ({ post, session }: { post: any, session: any }) => {
                 </h3>
             </div>
             <div className="px-4 py-2 flex justify-start">
-                <h3 className="text-sm font-semibold ">
-                    {post?.comments?.length > 0 && (
-                        <span className="text-sm font-semibold">
-                            View all {post?.comments?.length} comments</span>
-                    )}
-                </h3>
+
+                <ViewAllComments  postId={post?._id} postUser={postUser} />
+
+
             </div>
 
             <div className='py-2 flex justify-start '>
-                <AddComment postId={post._id} session={session} />
+                <AddComment
+                    postId={post._id}
+                    session={session}
+                    refresh={refresh}
+                />
             </div>
-        </div>
+        </div >
+
     );
-};
+}
+
 
 export default PostComponent;

@@ -1,14 +1,14 @@
 import React, { useState, FormEvent } from "react";
 import axios from "@/config/axiosInstance";
 import InputEmoji from "react-input-emoji";
-import { revalidateTag } from "next/cache";
 
 interface AddCommentProps {
   postId: string;
   session: any;
+  refresh:()=>void;
 }
 
-const AddComment: React.FC<AddCommentProps> = ({ postId, session }) => {
+const AddComment: React.FC<AddCommentProps> = ({ postId, session, refresh }) => {
   const [comment, setComment] = useState<string>('');
 
   const handleCommentChange = (emojiText: string) => {
@@ -24,7 +24,7 @@ const AddComment: React.FC<AddCommentProps> = ({ postId, session }) => {
         comment
       });
       setComment('');
-      revalidateTag('posts');
+      refresh();
     } catch (error) {
       console.log(error);
     }
@@ -42,7 +42,7 @@ const AddComment: React.FC<AddCommentProps> = ({ postId, session }) => {
         placeholder="Add a comment..."
         className="h-10 outline-none border-none border-b border-gray-300 focus:border-blue-500 resize-none overflow-hidden"
       />
-
+ 
       {comment ? (
         <button type="submit" className="px-2 text-blue-500">Post</button>
       ) : (
@@ -52,27 +52,5 @@ const AddComment: React.FC<AddCommentProps> = ({ postId, session }) => {
   );
 };
 
-export async function fetchInitialComments(postId: string) {
-    try {
-      const response = await axios.get(`/posts/${postId}/comments`);
-      return response.data;
-    } catch (error) {
-      console.error(error);
-      return [];
-    }
-  }
-
-export async function getServerSideProps(_: any, context: any) {
-   
-    const postId = context.params?.postId as string;
-    const comments = await fetchInitialComments(postId);
-  
-    return {
-      props: {
-        postId,
-        comments,
-      },
-    };
-  }
 
 export default AddComment;
