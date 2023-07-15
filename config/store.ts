@@ -1,10 +1,12 @@
 import postSlice from '@/reducers/postSlice';
+import commentSlice from '@/reducers/commentSlice';
 import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 const store = configureStore({
   reducer: {
     posts: postSlice,
+    comments:commentSlice,
   },
   devTools: true,
 });

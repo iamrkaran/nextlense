@@ -8,15 +8,13 @@ type Comment = {
     text: string;
     user: string;
     createdDate: Date;
-    
+
 };
 
-const ViewAllComments = ({ postId, postUser }: any) => {
+const ViewAllComments = ({ postId, postUser, refresh }: any) => {
     const [showAllComments, setShowAllComments] = useState(false);
     const [comments, setComments] = useState<Comment[]>([]);
     const [username, setUsername] = useState('');
-
-
 
     const handleToggleComments = () => {
         setShowAllComments(!showAllComments);
@@ -36,7 +34,6 @@ const ViewAllComments = ({ postId, postUser }: any) => {
         }
     };
 
-
     useEffect(() => {
         const fetchComments = async () => {
             try {
@@ -54,7 +51,9 @@ const ViewAllComments = ({ postId, postUser }: any) => {
         };
 
         fetchComments();
-    }, [postId]);
+    }, [postId, refresh]);
+
+
 
     return (
         <div>
@@ -71,27 +70,27 @@ const ViewAllComments = ({ postId, postUser }: any) => {
             {showAllComments && (
                 <div className="mt-2 space-y-2">
                     {comments.map((comment) => (
-                        <div className="flex items-center space-x-2" key={comment._id}>
+                        <div className="flex items-start space-x-2" key={comment._id}>
                             <div className="flex items-center space-x-2">
                                 <Image
                                     src={postUser?.picture || '/next.svg'}
                                     alt="User Avatar"
-                                    width={24}
-                                    height={24}
+                                    width={36}
+                                    height={36}
                                     className="rounded-full"
                                 />
-                                <h3 className="text-sm font-semibold">{username}</h3>
+
+                                <div>
+                                    <h3 className="text-sm font-semibold pr-2">{username}</h3>
+                                    <p className="text-xs text-gray-400">
+                                        {comment.createdDate && getTimeAgo(comment.createdDate.toString())}
+                                    </p>
+                                </div>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-500">
-                                    {comment.text}
-                                </p>
-                                <p className="text-xs text-gray-400">
-                                    {comment.createdDate instanceof Date && getTimeAgo(comment.createdDate.toISOString())}
-                                </p>
-
-
+                                <p className="ml-4 px-2 text-left  text-sm text-gray-900 break-words">{comment.text}</p>
                             </div>
+
                         </div>
                     ))}
                 </div>

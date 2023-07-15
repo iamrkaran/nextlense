@@ -14,6 +14,7 @@ import { type } from 'os';
 import Comment from './Comment';
 import ViewAllComments from './ViewAllComments';
 import Follow from './Follow';
+import ModelComponent from './ModelComponent';
 
 type Post = {
     _id: string;
@@ -36,11 +37,12 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
     const [liked, setLiked] = useState(false);
     const dispatch = useDispatch();
 
-    const [showAllComments, setShowAllComments] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-    const handleToggleComments = () => {
-        setShowAllComments(!showAllComments);
+    const handleToggleModal = () => {
+        setIsModalOpen(!isModalOpen);
     };
+
 
     useEffect(() => {
         setLiked(post.likes.includes(session?.user?.id));
@@ -49,8 +51,8 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
     const handleLike = async () => {
         try {
             const updatedFollowingStatus = !liked;
-  
-            setLiked(updatedFollowingStatus); 
+
+            setLiked(updatedFollowingStatus);
 
             const response = await axios.post('/posts/like', {
                 postId: post._id,
@@ -107,8 +109,8 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
                     <h3 className="text-sm font-semibold">{postUser?.username}</h3>
 
                     {session?.user?.id !== postUser?._id && (
-                    <Follow followerId={session?.user?.id} followingId={postUser?._id} />
-                  )}
+                        <Follow followerId={session?.user?.id} followingId={postUser?._id} />
+                    )}
 
                 </div>
                 <PostDropdownMenu items={menuItems} />
@@ -127,7 +129,7 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
             </div>
 
             <div className="flex items-center justify-between px-4 py-2">
-                <div className="flex items-center space-x-4">
+            <div className={`flex items-center ${isModalOpen ? '' : 'space-x-4'}`}>
 
                     <div className="flex items-center">
                         {liked ? (
@@ -145,15 +147,29 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
                         )}
 
                     </div>
-                    <Comment
-                        key={post._id}
-                        postId={post?._id}
-                        userId={session?.user?.id}
-                        session={session}
-                        refresh={refresh}
-                    />
 
+                    <FiMessageCircle className="text-gray-500" size={20} onClick={handleToggleModal} />
 
+                    {isModalOpen && (
+                        <ModelComponent
+                            onClose={handleToggleModal}
+                            postId={post._id}
+                            session={session}
+                            refresh={refresh}
+                        >
+                            {post?.comments?.length > 0 &&
+                                post?.comments?.map((comment, index) => (
+                                    <Comment
+                                        key={index}
+                                        postUser={postUser}
+                                        postId={post?._id}
+                                        comment={comment}
+                                        session={session}
+                                        refresh={refresh}
+                                    />
+                                ))}
+                        </ModelComponent>
+                    )}
                     <FiShare className="text-gray-500" size={20} />
                 </div>
                 <Bookmark
@@ -180,7 +196,7 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
             </div>
             <div className="px-4 py-2 flex justify-start">
 
-                <ViewAllComments  postId={post?._id} postUser={postUser} />
+                <ViewAllComments postId={post?._id} postUser={postUser} refresh={refresh}/>
 
 
             </div>

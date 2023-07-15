@@ -5,6 +5,7 @@ import { FaEnvelope } from 'react-icons/fa';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
+import SearchComponent from './SearchComponent';
 
 const Navbar = () => {
   const [mounted, setMounted] = useState(false);
@@ -22,13 +23,7 @@ const Navbar = () => {
           <Image src="/vercel.svg" width={30} height={30} alt="Logo" className="h-6 w-auto" />
         </h3>
       </Link>
-      <div className="flex-grow mx-5">
-        <input
-          type="search"
-          placeholder="Search..."
-          className={`w-full p-2 rounded-md border-2 ${theme === 'dark' ? 'bg-gray-700 border-white' : 'bg-white border-gray-400'}`}
-        />
-      </div>
+     <SearchComponent />
       <Link href="/messages" passHref >
         <h3 className="hover:bg-gray-200 dark:hover:bg-gray-700 p-2 rounded-full">
           <FaEnvelope size={24} />
@@ -37,5 +32,5 @@ const Navbar = () => {
     </nav>
   );
 };
-
+ 
 export default Navbar;

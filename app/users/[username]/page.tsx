@@ -54,7 +54,7 @@ const UserProfile = () => {
           const response = await axios.get(`/users/allusers/${username}`);
           SetUserData(response.data);
           SetUserId(response.data._id);
-          console.log(response.data._id);
+          // console.log(response.data._id);
           const postsResponse = await axios.get(`/users/${response.data._id}/posts`);
           SetUserPosts(postsResponse.data);
           const savedPostsResponse = await axios.get(`/users/savedPosts?userId=${response.data._id}`);

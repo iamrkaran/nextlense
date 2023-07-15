@@ -3,97 +3,93 @@ import { FiMessageCircle } from 'react-icons/fi';
 import AddComment from './AddComment';
 import axios from '@/config/axiosInstance';
 import fetchUsernameById from '@/utils/fetchUsernameById';
+import Image from 'next/image';
 
-type CommentProps = {
-    postId: string;
-    userId: string;
-    session: any;
-    refresh: () => void;
+
+type Comment = {
+  user: string;
+  text: string;
+  createdDate: Date;
 };
 
-const Comment: React.FC<CommentProps> = ({
-    postId,
-    userId,
-    refresh,
-    session
-}) => {
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [comments, setComments] = useState<any>([]);
-    const [username, setUsername] = useState<string>('');
+type CommentProps = {
+  postId: string;
+  postUser: any;
+  comment: Comment;
+  session: string;
+  key: number;
+  refresh: () => void;
+};
 
-    const handleToggleModal = () => {
-        setIsModalOpen(!isModalOpen);
+
+const Comment: React.FC<CommentProps> = ({
+  key,
+  postId,
+  postUser,
+  comment,
+  session,
+  refresh,
+}) => {
+
+  const [username, setUsername] = useState<string>('');
+
+
+  const getTimeAgo = (date: string): string => {
+    const now = new Date();
+    const diff = now.getTime() - new Date(date).getTime();
+    const minutes = Math.floor(diff / 60000);
+
+    if (minutes < 60) {
+      return `${minutes}m ago`;
+    } else if (minutes < 1440) {
+      return `${Math.floor(minutes / 60)}h ago`;
+    } else {
+      return `${Math.floor(minutes / 1440)}d ago`;
+    }
+  };
+
+  const userId = postUser?._id;
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      try {
+        const fetchedUsername = await fetchUsernameById(userId);
+        setUsername(fetchedUsername);
+      } catch (error) {
+        console.log(error);
+      }
     };
 
-    useEffect(() => {
-        const fetchComments = async () => {
-            try {
-                const response = await axios.get(`/comments?postId=${postId}`);
-                setComments(response.data.comments.comments);
-                refresh();
-                if (response.data.comments.comments.length > 0) {
-                    const fetchedUsername = await fetchUsernameById(response.data.comments.comments[0].user);
-                    setUsername(fetchedUsername);
-                }
-                
-
-            } catch (error) {
-                console.error('Failed to fetch comments:', error);
-            }
-        };
-
-        fetchComments();
-    }, [postId]);
+    fetchUsername();
+  }, [userId]);
 
 
+  return (
+    <div className="mt-2 space-y-2 border-b py-2">
+      <div className="flex items-start space-x-2" key={key}>
+        <div className="flex items-center space-x-2">
+          <Image
+            src={postUser?.picture || '/next.svg'}
+            alt="User Avatar"
+            width={36}
+            height={36}
+            className="rounded-full"
+          />
 
-
-    return (
-        <div>
-            <button
-                onClick={handleToggleModal}
-                className="flex items-center text-gray-500"
-            >
-                <FiMessageCircle className="mr-2" size={20} />
-                <span>Comments</span>
-            </button>
-
-            {isModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
-                        <h2 className="text-2xl mb-4">Comments</h2>
-
-                        {comments.length > 0 ? (
-                            comments.map((comment: any) => (
-                                <div key={comment.id} className="mb-2">
-                                    <p className="text-gray-600">{comment.text}</p>
-                                    <p className="text-sm text-gray-500">
-                                        Commented by <span>{username}</span> on{' '}
-                                        {new Date(comment.createdDate).toLocaleString()}
-                                    </p>
-
-                                </div>
-                            ))
-                        ) : (
-                            <p>No comments yet.</p>
-                        )}
-                        <AddComment
-                            postId={postId}
-                            session={session}
-                            refresh={refresh}
-                        />
-
-                        <button
-                            className="mt-4 bg-gray-500 text-white py-2 px-4 rounded"
-                            onClick={handleToggleModal}
-                        >
-                            Close
-                        </button>
-                    </div>
-                </div>
-            )}
+          <div>
+            <h3 className="text-sm font-semibold pr-2">{username}</h3>
+            <p className="text-xs text-gray-400">
+              {comment.createdDate && getTimeAgo(comment.createdDate.toString())}
+            </p>
+          </div>
         </div>
-    );
+        <div>
+          <p className="ml-4 px-2 text-left  text-sm text-gray-900 break-words">{comment.text}</p>
+        </div>
+       
+      </div>
+    </div>
+  );
 };
 
 export default Comment;
