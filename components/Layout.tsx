@@ -8,13 +8,12 @@ interface Props {
 }
 
 
-
 const Layout: React.FC<Props> = ({ children }) => (
   <div>
     <Navbar />
     <main>{children}</main>
     <Footer />
   </div>
-);
+); 
 
 export default Layout;

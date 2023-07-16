@@ -94,9 +94,8 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
         }
     }
 
-
     return (
-        <div className="max-w-md mx-auto bg-white rounded-md shadow-lg mb-4">
+        <div className="max-w-md mx-auto bg-white text-gray-900 rounded-md shadow-lg mb-4">
             <div className="flex items-center justify-between p-4">
                 <div className="flex items-center space-x-2">
                     <Image
@@ -187,29 +186,18 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
                 </div>
             </div>
             <div className="px-4 py-2 flex justify-start">
-
                 <h3 className="text-sm font-semibold">{postUser?.username}</h3>
-
                 <h3 className="text-sm font-semibold px-2">
                     {post?.caption}
                 </h3>
             </div>
             <div className="px-4 py-2 flex justify-start">
-
                 <ViewAllComments postId={post?._id} postUser={postUser} refresh={refresh}/>
-
-
             </div>
-
             <div className='py-2 flex justify-start '>
-                <AddComment
-                    postId={post._id}
-                    session={session}
-                    refresh={refresh}
-                />
+                <AddComment postId={post._id} session={session}  refresh={refresh}  />
             </div>
         </div >
-
     );
 }
 

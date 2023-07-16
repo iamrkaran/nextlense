@@ -7,13 +7,13 @@ export default function AuthProviders() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const [providers, setProviders] = useState<any>(null);
-    const [loading, setLoading] = useState(true); 
+    const [loading, setLoading] = useState(true);
 
-    useEffect(() => { 
-        const fetchProviders = async () => { 
+    useEffect(() => {
+        const fetchProviders = async () => {
             const providers = await getProviders();
             setProviders(providers);
-            setLoading(false);  
+            setLoading(false);
         };
         fetchProviders();
     }, [session]);
@@ -24,12 +24,14 @@ export default function AuthProviders() {
     }
 
     return (
-        <div className="flex flex-col  items-center justify-center  py-2">
-            <button 
+        <div className="flex flex-col items-center justify-center py-2">
+            <button
                 onClick={() => signIn(providers.google.id)}
-                className="px-6 py-3 text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none">
+                className="w-full px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
                 Sign In
             </button>
         </div>
+
     );
 }

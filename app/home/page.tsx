@@ -10,6 +10,7 @@ import { RootState } from "@/config/store";
 import { fetchPosts } from "@/reducers/postSlice";
 import PostComponent from "@/components/Post";
 
+
 type Post = {
   _id: string;
   user: string;
@@ -23,7 +24,7 @@ type Post = {
 const HomePage = () => {
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
-  const posts = useSelector((state: RootState) => state.posts.posts);
+  const posts = useSelector((state: RootState) => state.posts.posts); 
   const loading = useSelector((state: RootState) => state.posts.loading);
   const error = useSelector((state: RootState) => state.posts.error);
 

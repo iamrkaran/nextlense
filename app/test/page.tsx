@@ -1,18 +1,20 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { getUserId } from '@/utils/session';
+import Cookies from 'js-cookie';
 
 const Page = () => {
   const [session, setSession] = useState<string | null>(null);
 
+
   useEffect(() => {
     const fetchSession = async () => {
       const sessionData = await getUserId();
-      console.log(sessionData);
+      // console.log(sessionData);
       setSession(sessionData);
      
     };
-    fetchSession();
+    fetchSession(); 
   }, []);
 
   return (
