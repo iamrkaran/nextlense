@@ -18,9 +18,6 @@ const Bookmark: React.FC<PostProps> = ({ postId, userId, refresh}) => {
         const response = await axios.get(`/users/savedPosts?userId=${userId}`);
         const savedPosts = response.data;
         const isPostSaved = savedPosts.some((post: any) => post._id === postId);
-        toast.success('Post saved successfully', {
-          position: toast.POSITION.TOP_CENTER
-        });
 
         setIsSaved(isPostSaved);
       } else {
