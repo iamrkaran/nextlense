@@ -1,20 +1,25 @@
-"use react";
-import Image from 'next/image';
-import { FiHeart, FiMessageCircle, FiShare } from 'react-icons/fi';
-import { AiFillHeart } from 'react-icons/ai';
-import { useState, useEffect } from 'react';
-import axios from '@/config/axiosInstance';
-import AddComment from './AddComment';
-import PostDropdownMenu from './DropdownMenu';
-import { menuItems } from '@/constants/postMenuItems';
-import Bookmark from './Bookmark';
+import axios from "@/config/axiosInstance";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import {
+    FiHeart,
+    FiMessageCircle,
+    FiShare,
+    FiMoreHorizontal,
+} from "react-icons/fi";
+import { AiFillHeart } from "react-icons/ai";
+import AddComment from "./AddComment";
+import DropdownMenu from "./DropdownMenu";
+import Bookmark from "./Bookmark";
 import { useDispatch } from "react-redux";
 import { fetchPosts } from "@/reducers/postSlice";
-import { type } from 'os';
-import Comment from './Comment';
-import ViewAllComments from './ViewAllComments';
-import Follow from './Follow';
-import ModelComponent from './ModelComponent';
+import ModelComponent from "./ModelComponent";
+import { menuItems } from "@/constants/postMenuItems";
+import { updatedMenuItems } from "@/constants/loggedMenuItems";
+import Follow from "./Follow";
+import ViewAllComments from "./ViewAllComments";
+import Comment from "./Comment";
+import EditPost from "./EditPost";
 
 type Post = {
     _id: string;
@@ -32,16 +37,20 @@ type PostComponentProps = {
     refreshData: () => void;
 };
 
-
 const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
     const [liked, setLiked] = useState(false);
     const dispatch = useDispatch();
 
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [isModalOpen, setIsModelOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+    const [isLikeVisible, setIsLikeVisible] = useState(true);
+    const [isCommentVisible, setIsCommentVisible] = useState(true);
 
     const handleToggleModal = () => {
-        setIsModalOpen(!isModalOpen);
-    };
+
+        setIsModelOpen(!isModalOpen);
+    }
 
 
     useEffect(() => {
@@ -51,12 +60,11 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
     const handleLike = async () => {
         try {
             const updatedFollowingStatus = !liked;
-
             setLiked(updatedFollowingStatus);
 
-            const response = await axios.post('/posts/like', {
+            const response = await axios.post("/posts/like", {
                 postId: post._id,
-                userId: session?.user?.id
+                userId: session?.user?.id,
             });
 
             if (response.status === 200) {
@@ -77,7 +85,7 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
                 const response = await axios.get(`/users/${post?.user}`);
                 setPostUser(response.data);
             } catch (error) {
-                console.error('Failed to fetch user:', error);
+                console.error("Failed to fetch user:", error);
             }
         };
 
@@ -92,7 +100,21 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
         } catch (error) {
             console.error(error);
         }
-    }
+    };
+
+    const hideLikeCount = () => {
+        setIsLikeVisible((prevIsLikeVisible) => !prevIsLikeVisible);
+        console.log("Toggle like count visibility");
+        refresh();
+    };
+
+    const turnOffComments = () => {
+        setIsCommentVisible((prevIsCommentVisible) => !prevIsCommentVisible);
+        console.log("Toggle comments visibility");
+        refresh();
+    };
+
+
 
     return (
         <div className="max-w-md mx-auto bg-white text-gray-900 rounded-md shadow-lg mb-4">
@@ -110,26 +132,42 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
                     {session?.user?.id !== postUser?._id && (
                         <Follow followerId={session?.user?.id} followingId={postUser?._id} />
                     )}
-
                 </div>
-                <PostDropdownMenu items={menuItems} />
+
+                {/* menu */}
+
+                <DropdownMenu
+                    items={post?.user === session?.user?.id ? updatedMenuItems : menuItems}
+                    postId={post?._id}
+                    authToken={session?.user?.authToken}
+                    userId={session?.user?.id}
+                    hideLikeCount={hideLikeCount}
+                    turnOffComments={turnOffComments}
+                >
+                    {post?.user === session?.user?.id && (
+                        <EditPost
+                            post={post}
+                            postId={post._id}
+                            session={session}
+                            refresh={refresh}
+                        />
+                    )}
+                </DropdownMenu>
 
             </div>
-            <div className="relative">
+            <div className="relative w-full h-0 ImagePost">
                 <Image
                     src={post?.image}
                     alt="Post Image"
-                    layout="responsive"
-                    width={500}
-                    height={300}
-                    className="rounded-t-md w-full h-auto"
+                    layout="fill"
+                    objectFit="cover"
+                    className="rounded-t-md"
                 />
-
             </div>
 
-            <div className="flex items-center justify-between px-4 py-2">
-            <div className={`flex items-center ${isModalOpen ? '' : 'space-x-4'}`}>
 
+            <div className="flex items-center justify-between px-4 py-2">
+                <div className={`flex items-center ${isModalOpen ? "" : "space-x-4"}`}>
                     <div className="flex items-center">
                         {liked ? (
                             <AiFillHeart
@@ -144,62 +182,67 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
                                 onClick={handleLike}
                             />
                         )}
-
                     </div>
-
-                    <FiMessageCircle className="text-gray-500" size={20} onClick={handleToggleModal} />
-
-                    {isModalOpen && (
-                        <ModelComponent
-                            onClose={handleToggleModal}
-                            postId={post._id}
-                            session={session}
-                            refresh={refresh}
-                        >
-                            {post?.comments?.length > 0 &&
-                                post?.comments?.map((comment, index) => (
-                                    <Comment
-                                        key={index}
-                                        postUser={postUser}
-                                        postId={post?._id}
-                                        comment={comment}
-                                        session={session}
-                                        refresh={refresh}
-                                    />
-                                ))}
-                        </ModelComponent>
-                    )}
+                    <FiMessageCircle
+                        className="text-gray-500"
+                        size={20}
+                        onClick={handleToggleModal}
+                    />
+                    {isCommentVisible && (
+                        <>
+                            {isModalOpen && (
+                                <ModelComponent
+                                    onClose={handleToggleModal}
+                                    postId={post._id}
+                                    session={session}
+                                    refresh={refresh}
+                                >
+                                    {post?.comments?.length > 0 &&
+                                        post?.comments?.map((comment, index) => (
+                                            <Comment
+                                                key={index}
+                                                postUser={postUser}
+                                                postId={post?._id}
+                                                comment={comment}
+                                                session={session}
+                                                refresh={refresh}
+                                            />
+                                        ))}
+                                </ModelComponent>
+                            )}
+                        </>)}
                     <FiShare className="text-gray-500" size={20} />
                 </div>
-                <Bookmark
-                    postId={post?._id}
-                    userId={session?.user?.id}
-
-                    refresh={refresh}
-                />
+                <Bookmark postId={post?._id} userId={session?.user?.id} refresh={refresh} />
             </div>
             <div className="flex items-center justify-between px-4 py-2">
                 <div className="flex items-center space-x-4">
-                    {post?.likes?.length > 0 && (
-                        <h3 className="text-sm font-semibold">{post?.likes?.length} likes</h3>
-                    )}
+                    {isLikeVisible &&
+                        <>
+                            {post?.likes?.length > 0 && (
+                                <h3 className="text-sm font-semibold">{post?.likes?.length} likes</h3>
+                            )}
+                        </>
+                    }
                 </div>
             </div>
             <div className="px-4 py-2 flex justify-start">
                 <h3 className="text-sm font-semibold">{postUser?.username}</h3>
-                <h3 className="text-sm font-semibold px-2">
-                    {post?.caption}
-                </h3>
+                <h3 className="text-sm font-semibold px-2">{post?.caption}</h3>
             </div>
-            <div className="px-4 py-2 flex justify-start">
-                <ViewAllComments postId={post?._id} postUser={postUser} refresh={refresh}/>
-            </div>
-            <div className='py-2 flex justify-start '>
-                <AddComment postId={post._id} session={session}  refresh={refresh}  />
-            </div>
-        </div >
-    );
-}
 
+            <div className="px-4 py-2 flex justify-start">
+                <ViewAllComments postId={post?._id} postUser={postUser} refresh={refresh} />
+            </div>
+            {isCommentVisible &&
+                <>
+                    <div className="py-2 flex justify-start">
+                        <AddComment postId={post._id} session={session} refresh={refresh} />
+                    </div>
+                </>
+            }
+        </div>
+    );
+};
 
 export default PostComponent;

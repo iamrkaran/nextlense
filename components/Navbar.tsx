@@ -19,11 +19,21 @@ const Navbar = () => {
   return (
     <nav className={`top-0 flex justify-between items-center py-3 px-5 bg-white dark:bg-gray-800 w-full border-b dark:border-gray-700 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>
       <Link href="/home" passHref >
-        <h3>
-          <Image src="/vercel.svg" width={30} height={30} alt="Logo" className="h-6 w-auto" />
-        </h3>
+        {/* <h3>
+          {/* <Image src="/nextlense.svg" width={30} height={30} alt="Logo" className="h-6 w-auto" /> */}
+        {/* </h3> */}
+        <div className="flex items-center justify-center w-24 h-8">
+          <h1 className="text-center text-xl font-bold">
+            <Link href="/" passHref>
+              <span className="text-gradient">Next</span>
+              <span className="text-gradient">Lense</span>
+            </Link>
+          </h1>
+        </div>
+
+
       </Link>
-     <SearchComponent />
+      <SearchComponent />
       <Link href="/messages" passHref >
         <h3 className="hover:bg-gray-200 dark:hover:bg-gray-700 p-2 rounded-full">
           <FaEnvelope size={24} />
@@ -32,5 +42,5 @@ const Navbar = () => {
     </nav>
   );
 };
- 
+
 export default Navbar;

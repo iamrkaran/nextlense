@@ -1,4 +1,3 @@
-
 import connectDB from "@/config/dbConnect";
 import UserModel from "@/models/user";
 
