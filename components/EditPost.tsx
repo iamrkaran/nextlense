@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from '@/config/axiosInstance';
+import { toast } from 'react-toastify';
 
 type Post = {
     _id: string;
@@ -41,11 +42,16 @@ const EditPost = ({ post, postId, session, refresh }: EditPostProps) => {
                     },
                 }
             );
-
+            toast.success('Post updated successfully', {
+                position: toast.POSITION.TOP_CENTER,
+            });
             console.log('Post updated:', response.data);
             refresh();
             setIsModalOpen(false); // Close the modal
         } catch (error) {
+            toast.error('Error updating post', {
+                position: toast.POSITION.TOP_CENTER,
+            });
             console.error('Error updating post:', error);
         }
     };

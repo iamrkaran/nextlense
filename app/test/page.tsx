@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { getUserId } from '@/utils/session';
+import { getSessionData } from "@/utils/session";
+import { getUsername } from '@/utils/session';
 import Cookies from 'js-cookie';
 
 const Page = () => {
@@ -9,7 +10,7 @@ const Page = () => {
 
   useEffect(() => {
     const fetchSession = async () => {
-      const sessionData = await getUserId();
+      const sessionData = await getUsername();
       // console.log(sessionData);
       setSession(sessionData);
      

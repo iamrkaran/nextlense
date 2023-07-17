@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BsBookmarkFill, BsBookmark } from "react-icons/bs";
 import axios from '@/config/axiosInstance' 
+import { toast } from 'react-toastify';
 
 type PostProps = {
   postId: string;
@@ -17,8 +18,15 @@ const Bookmark: React.FC<PostProps> = ({ postId, userId, refresh}) => {
         const response = await axios.get(`/users/savedPosts?userId=${userId}`);
         const savedPosts = response.data;
         const isPostSaved = savedPosts.some((post: any) => post._id === postId);
+        toast.success('Post saved successfully', {
+          position: toast.POSITION.TOP_CENTER
+        });
+
         setIsSaved(isPostSaved);
       } else {
+        toast.error('Error saving post', {
+          position: toast.POSITION.TOP_CENTER
+        });
         console.log('UserId or PostId is undefined');
       }
     }

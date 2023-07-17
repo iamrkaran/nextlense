@@ -1,6 +1,7 @@
 import React, { useState, FormEvent } from "react";
 import axios from "@/config/axiosInstance";
 import InputEmoji from "react-input-emoji";
+import { toast } from "react-toastify";
 
 interface AddCommentProps {
   postId: string;
@@ -23,9 +24,16 @@ const AddComment: React.FC<AddCommentProps> = ({ postId, session, refresh }) => 
         userId: session?.user?.id,
         comment
       });
+      toast.success('Comment added successfully', {
+        position: toast.POSITION.TOP_CENTER
+      });
+
       setComment('');
       refresh();
     } catch (error) {
+      toast.error('Error adding comment', {
+        position: toast.POSITION.TOP_CENTER
+      });   
       console.log(error);
     }
   };

@@ -6,6 +6,7 @@ import uploadFiles from '@/config/s3';
 import { getUserId } from '@/utils/session';
 import Image from 'next/image';
 import Layout from '@/components/Layout';
+import { toast } from 'react-toastify';
 
 const FileUpload = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -17,7 +18,6 @@ const FileUpload = () => {
   useEffect(() => {
     const fetchSession = async () => {
       const useridData = await getUserId();
-      console.log(useridData);
       setUserId(useridData);
      
     };
@@ -60,13 +60,18 @@ const FileUpload = () => {
           caption,
           user:userId,
         });
-        
+        toast.success('Post Created successfully', {
+          position: toast.POSITION.TOP_CENTER,
+        });
         setFile(null);
         setCaption('');
         setUploadedFileUrl('');
       }
     } catch (err) {
       console.error(err);
+      toast.error('Error creating post', {
+        position: toast.POSITION.TOP_CENTER,
+      });
     }
   };
 

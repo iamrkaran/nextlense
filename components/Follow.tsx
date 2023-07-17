@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from '@/config/axiosInstance';
+import { toast } from 'react-toastify';
 
 type FollowProps = {
   followerId: string;
@@ -30,6 +31,10 @@ const Follow = ({ followerId, followingId }: FollowProps) => {
       setIsFollowing(updatedFollowingStatus); // Update the button immediately
   
       const response = await axios.post('/users/follow', { followerId, followingId });
+
+      toast.success(`You ${updatedFollowingStatus ? 'followed' : 'unfollowed'} this user`, {
+        position: toast.POSITION.TOP_CENTER,
+      });
   
       if (response.status !== 200) {
         // If the request fails, revert the button to the previous following status
@@ -37,6 +42,9 @@ const Follow = ({ followerId, followingId }: FollowProps) => {
       }
     } catch (error) {
       console.error(error);
+      toast.error('Error updating following status', {
+        position: toast.POSITION.TOP_CENTER,
+      });
       // If an error occurs, revert the button to the previous following status
       setIsFollowing(!isFollowing);
     }
