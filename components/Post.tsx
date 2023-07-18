@@ -198,11 +198,10 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
                                     refresh={refresh}
                                 >
                                     {post?.comments?.length > 0 &&
-                                        post?.comments?.map((comment, index) => (
+                                        post?.comments?.map((comment: any, index: number) => (
                                             <Comment
                                                 key={index}
-                                                postUser={postUser}
-                                                postId={post?._id}
+                                                postId={post._id}
                                                 comment={comment}
                                                 session={session}
                                                 refresh={refresh}
@@ -232,7 +231,7 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
             </div>
 
             <div className="px-4 py-2 flex justify-start">
-                <ViewAllComments postId={post?._id} postUser={postUser} refresh={refresh} />
+                <ViewAllComments postId={post?._id} refresh={refresh} />
             </div>
             {isCommentVisible &&
                 <>

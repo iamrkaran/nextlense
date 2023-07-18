@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import axios from '@/config/axiosInstance';
-import fetchUsernameById from '@/utils/fetchUsernameById';
+import fetchUserDataById from '@/utils/fetchUserDataById';
 
 type Comment = {
     _id: string;
     text: string;
     user: string;
     createdDate: Date;
-
 };
 
-const ViewAllComments = ({ postId, postUser, refresh }: any) => {
+type UserData = {
+    username: string;
+    picture: string;
+};
+
+const ViewAllComments = ({ postId, refresh }: any) => {
     const [showAllComments, setShowAllComments] = useState(false);
     const [comments, setComments] = useState<Comment[]>([]);
-    const [username, setUsername] = useState('');
+    const [userDatas, setUserDatas] = useState<UserData[]>([]);
 
     const handleToggleComments = () => {
         setShowAllComments(!showAllComments);
@@ -38,12 +42,12 @@ const ViewAllComments = ({ postId, postUser, refresh }: any) => {
         const fetchComments = async () => {
             try {
                 const response = await axios.get(`/comments?postId=${postId}`);
-                setComments(response.data.comments.comments);
+                const fetchedComments: Comment[] = response.data.comments.comments;
+                setComments(fetchedComments);
 
-                if (response.data.comments.comments.length > 0) {
-                    const fetchedUsername = await fetchUsernameById(response.data.comments.comments[0].user);
-                    setUsername(fetchedUsername);
-                }
+                const userIds = fetchedComments.map((comment) => comment.user);
+                const fetchedUserDatas = await Promise.all(userIds.map(fetchUserDataById));
+                setUserDatas(fetchedUserDatas as UserData[]); // Specify the type explicitly
 
             } catch (error) {
                 console.error('Failed to fetch comments:', error);
@@ -52,8 +56,6 @@ const ViewAllComments = ({ postId, postUser, refresh }: any) => {
 
         fetchComments();
     }, [postId, refresh]);
-
-
 
     return (
         <div>
@@ -69,36 +71,38 @@ const ViewAllComments = ({ postId, postUser, refresh }: any) => {
             </h3>
             {showAllComments && (
                 <div className="mt-2 space-y-2">
-                    {comments.map((comment) => (
-                        <div className="flex items-start space-x-2" key={comment._id}>
-                            <div className="flex items-center space-x-2">
-                                <Image
-                                    src={postUser?.picture || '/next.svg'}
-                                    alt="User Avatar"
-                                    width={36}
-                                    height={36}
-                                    className="rounded-full"
-                                />
+                    {comments.map((comment, index) => {
+                        const userData = userDatas[index];
+                        return (
+                            <div className="flex items-start space-x-2" key={comment._id}>
+                                <div className="flex items-center space-x-2">
+                                    <Image
+                                        src={userData?.picture || '/logo.svg'}
+                                        alt="User Avatar"
+                                        width={36}
+                                        height={36}
+                                        className="rounded-full"
+                                    />
 
+                                    <div>
+                                        <h3 className="text-sm font-semibold pr-2">{userData?.username}</h3>
+                                        <p className="text-xs text-gray-400">
+                                            {comment.createdDate && getTimeAgo(comment.createdDate.toString())}
+                                        </p>
+                                    </div>
+                                </div>
                                 <div>
-                                    <h3 className="text-sm font-semibold pr-2">{username}</h3>
-                                    <p className="text-xs text-gray-400">
-                                        {comment.createdDate && getTimeAgo(comment.createdDate.toString())}
+                                    <p className="ml-4 px-2 text-left text-sm text-gray-900 break-words">
+                                        {comment.text}
                                     </p>
                                 </div>
                             </div>
-                            <div>
-                                <p className="ml-4 px-2 text-left  text-sm text-gray-900 break-words">{comment.text}</p>
-                            </div>
-
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </div>
-
     );
-}
-
+};
 
 export default ViewAllComments;

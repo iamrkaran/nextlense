@@ -1,38 +1,116 @@
+// import React, { useEffect, useState } from 'react';
+// import { FiMessageCircle } from 'react-icons/fi';
+// import AddComment from './AddComment';
+// import axios from '@/config/axiosInstance';
+// import fetchUsernameById from '@/utils/fetchUserDataById';
+// import Image from 'next/image';
+
+
+// type Comment = {
+//   _id: string;
+//   text: string;
+//   user: string;
+//   createdDate: Date;
+// };
+
+// type UserData = {
+//   username: string;
+//   picture: string;
+// };
+
+// type CommentProps = {
+//   postId: string;
+//   comment: Comment;
+//   session: string;
+//   key: number;
+//   refresh: () => void;
+// };
+
+
+// const CommentsPage: React.FC<CommentProps> = ({
+//   key,
+//   postId,
+//   comment,
+//   session,
+//   refresh,
+// }) => {
+
+//   const [username, setUsername] = useState<string>('');
+
+
+ 
+
+//   useEffect(() => {
+//     const PostDataFromRedux = useSelector((state: RootState) => state.post);
+//     const fetchedComments: Comment[] = response.data.comments.comments;
+//     setComments(fetchedComments);
+
+//     const userIds = fetchedComments.map((comment) => comment.user);
+//     const fetchedUserDatas = await Promise.all(userIds.map(fetchUserDataById));
+//     setUserDatas(fetchedUserDatas as UserData[]); // 
+ 
+
+
+//   return (
+//     <div className="mt-2 space-y-2 border-b py-2">
+//       <div className="flex items-start space-x-2" key={key}>
+//         <div className="flex items-center space-x-2">
+//           <Image
+//             src={postUser?.picture || '/next.svg'}
+//             alt="User Avatar"
+//             width={36}
+//             height={36}
+//             className="rounded-full"
+//           />
+
+//           <div>
+//             <h3 className="text-sm font-semibold pr-2">{username}</h3>
+//             <p className="text-xs text-gray-400">
+//               {comment.createdDate && getTimeAgo(comment.createdDate.toString())}
+//             </p>
+//           </div>
+//         </div>
+//         <div>
+//           <p className="ml-4 px-2 text-left  text-sm text-gray-900 break-words">{comment.text}</p>
+//         </div>
+       
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default CommentsPage;
+
 import React, { useEffect, useState } from 'react';
-import { FiMessageCircle } from 'react-icons/fi';
-import AddComment from './AddComment';
-import axios from '@/config/axiosInstance';
-import fetchUsernameById from '@/utils/fetchUsernameById';
+import fetchUserDataById from '@/utils/fetchUserDataById';
 import Image from 'next/image';
-
-
-type Comment = {
-  user: string;
-  text: string;
-  createdDate: Date;
-};
 
 type CommentProps = {
   postId: string;
-  postUser: any;
-  comment: Comment;
-  session: string;
-  key: number;
+  comment: {
+    user: string;
+    text: string;
+    createdDate: Date;
+  };
+  session: any; 
   refresh: () => void;
 };
 
+const Comment: React.FC<CommentProps> = ({ postId, comment, session, refresh }) => {
+  const [userData, setUserData] = useState<any>(null); // Modify the type as per your user data type
 
-const Comment: React.FC<CommentProps> = ({
-  key,
-  postId,
-  postUser,
-  comment,
-  session,
-  refresh,
-}) => {
+  useEffect(() => {
+    const fetchUser = async () => {
+      const fetchedUserData = await fetchUserDataById(comment.user);
+      setUserData(fetchedUserData);
+    };
 
-  const [username, setUsername] = useState<string>('');
+    fetchUser();
+  }, [comment.user]);
 
+  if (!userData) {
+    return null; // You can render a loading state or handle it in your own way
+  }
 
   const getTimeAgo = (date: string): string => {
     const now = new Date();
@@ -48,36 +126,19 @@ const Comment: React.FC<CommentProps> = ({
     }
   };
 
-  const userId = postUser?._id;
-
-  useEffect(() => {
-    const fetchUsername = async () => {
-      try {
-        const fetchedUsername = await fetchUsernameById(userId);
-        setUsername(fetchedUsername);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchUsername();
-  }, [userId]);
-
-
   return (
     <div className="mt-2 space-y-2 border-b py-2">
-      <div className="flex items-start space-x-2" key={key}>
-        <div className="flex items-center space-x-2">
-          <Image
-            src={postUser?.picture || '/next.svg'}
+     <div className="flex items-start space-x-2" >
+         <div className="flex items-center space-x-2">
+           <Image
+            src={userData.picture || '/next.svg'}
             alt="User Avatar"
             width={36}
             height={36}
             className="rounded-full"
           />
-
           <div>
-            <h3 className="text-sm font-semibold pr-2">{username}</h3>
+            <h3 className="text-sm font-semibold pr-2">{userData.username}</h3>
             <p className="text-xs text-gray-400">
               {comment.createdDate && getTimeAgo(comment.createdDate.toString())}
             </p>
@@ -93,3 +154,5 @@ const Comment: React.FC<CommentProps> = ({
 };
 
 export default Comment;
+
+
