@@ -1,5 +1,5 @@
 import axios from "@/config/axiosInstance";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import {
     FiHeart,
@@ -21,6 +21,7 @@ import ViewAllComments from "./ViewAllComments";
 import Comment from "./Comment";
 import EditPost from "./EditPost";
 import Link from "next/link";
+import SharePost from "./SharePost";
 
 type Post = {
     _id: string;
@@ -110,24 +111,28 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
         }
     };
 
-
-
     const [postUser, setPostUser] = useState<any>(null);
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const response = await axios.get(`/users/${post?.user}`);
-                setPostUser(response.data);
-            } catch (error) {
-                console.error("Failed to fetch user:", error);
-            }
-        };
-
+    
+    const fetchUser = useMemo(
+        () => async (userId: string) => {
+          try {
+            const response = await axios.get(`/users/${userId}`);
+            return response.data;
+          } catch (error) {
+            console.error('Failed to fetch user:', error);
+            return null;
+          }
+        },
+        []
+      );
+    
+      useEffect(() => {
+        // Fetch the user data when the post.user value is available or changed
         if (post?.user) {
-            fetchUser();
+          fetchUser(post.user).then((userData) => setPostUser(userData));
         }
-    }, [post?.user]);
+      }, [post?.user, fetchUser]);
+    
 
     const refresh = () => {
         try {
@@ -249,7 +254,7 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
                                 </ModelComponent>
                             )}
                         </>)}
-                    <FiShare className="text-gray-500" size={20} />
+                   <SharePost postId={post._id} />
                 </div>
                 <Bookmark postId={post?._id} userId={session?.user?.id} refresh={refresh} />
             </div>

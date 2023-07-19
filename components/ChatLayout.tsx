@@ -11,6 +11,7 @@ import { fetchChatMessages } from '@/reducers/chatSlice';
 import { useSession } from 'next-auth/react';
 import Chat from './Chat';
 import Footer from './Footer';
+import Image from 'next/image';
 
 
 
@@ -104,7 +105,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
                 {/* Navbar */}
                 <div className="bg-gray-200 py-4 px-6 flex items-center justify-between">
                     <div className="flex items-center">
-                        <img src={userImage} alt="User" className="w-8 h-8 rounded-full mr-2" />
+                        <Image width={32}  height={32} src={userImage} alt="User" className="w-8 h-8 rounded-full mr-2" />
                         <div>
                             <p className="font-semibold">{Name}</p>
                             <p className="text-xs text-gray-600">Active {new Date().toLocaleString()}</p>

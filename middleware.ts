@@ -6,9 +6,6 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("authToken")?.value;
   const path = request.nextUrl.pathname;
 
-  // if (path.startsWith("/api/") && !token) {
-  //   return NextResponse.redirect(new URL("/unauthorized", request.url));
-  // }
 
   // Protect the /users route
   if (path.startsWith("/users") && !token) {

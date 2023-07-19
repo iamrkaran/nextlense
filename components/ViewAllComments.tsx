@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import axios from '@/config/axiosInstance';
 import fetchUserDataById from '@/utils/fetchUserDataById';
@@ -38,24 +38,28 @@ const ViewAllComments = ({ postId, refresh }: any) => {
         }
     };
 
-    useEffect(() => {
-        const fetchComments = async () => {
-            try {
-                const response = await axios.get(`/comments?postId=${postId}`);
-                const fetchedComments: Comment[] = response.data.comments.comments;
-                setComments(fetchedComments);
+    // Memoize the fetchComments function to avoid redundant API calls
+  const fetchComments = useMemo(
+    () => async () => {
+      try {
+        const response = await axios.get(`/comments?postId=${postId}`);
+        const fetchedComments: Comment[] = response.data.comments.comments;
+        setComments(fetchedComments);
 
-                const userIds = fetchedComments.map((comment) => comment.user);
-                const fetchedUserDatas = await Promise.all(userIds.map(fetchUserDataById));
-                setUserDatas(fetchedUserDatas as UserData[]); // Specify the type explicitly
+        const userIds = fetchedComments.map((comment) => comment.user);
+        const fetchedUserDatas = await Promise.all(userIds.map(fetchUserDataById));
+        setUserDatas(fetchedUserDatas as UserData[]); // Specify the type explicitly
 
-            } catch (error) {
-                console.error('Failed to fetch comments:', error);
-            }
-        };
+      } catch (error) {
+        console.error('Failed to fetch comments:', error);
+      }
+    },
+    [postId] // Memoize the function based on the postId
+  );
 
-        fetchComments();
-    }, [postId, refresh]);
+  useEffect(() => {
+    fetchComments(); // Fetch comments when the component mounts or when the postId changes
+  }, [fetchComments, refresh]); // Add fetchComments as a dependency
 
     return (
         <div>
@@ -77,7 +81,7 @@ const ViewAllComments = ({ postId, refresh }: any) => {
                             <div className="flex items-start space-x-2" key={comment._id}>
                                 <div className="flex items-center space-x-2">
                                     <Image
-                                        src={userData?.picture || '/logo.svg'}
+                                        src={userData?.picture || '/next.svg'}
                                         alt="User Avatar"
                                         width={36}
                                         height={36}

@@ -1,4 +1,5 @@
 import axios from "@/config/axiosInstance";
+import { toast } from "react-toastify";
 
 type ProfileMenuItem = {
   label: string;
@@ -17,43 +18,33 @@ const cancelAction = () => {
   return true;
 };
 
+const handleAddToFavorites = async (
+  postId: string,
+  authToken: string,
+  userId: string
+) => {
+  try {
+    const response = await axios.post("/posts/favorite", {
+      postId,
+      userId,
+    });
+    toast.success(response.data.message);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 export const menuItems: ProfileMenuItem[] = [
   {
     label: "Report",
-    action: () => console.log("Report clicked"),
+    action: () => toast.info("Reported"),
     color: "text-red-500",
   },
-  {
-    label: "Unfollow",
-    action: () => console.log("Unfollow clicked"),
-    color: "text-red-500",
-  },
-  {
-    label: "Add to favorites",
-    action: () => console.log("Add to favorites clicked"),
-    color: "text-gray-700",
-  },
-  {
-    label: "Go to post",
-    action: () => console.log("Go to post clicked"),
-    color: "text-gray-700",
-  },
-  {
-    label: "Share to",
-    action: () => console.log("Share to clicked"),
-    color: "text-gray-700",
-  },
-  {
-    label: "Copy link",
-    action: () => console.log("Copy link clicked"),
-    color: "text-gray-700",
-  },
-  {
-    label: "Embed",
-    action: () => console.log("Embed clicked"),
-    color: "text-gray-700",
-  },
+  // {
+  //   label: "Add to favorites",
+  //   action: handleAddToFavorites, 
+  //   color: "text-gray-700",
+  // },
   {
     label: "Cancel",
     action: cancelAction,

@@ -24,39 +24,45 @@ const SearchComponent: React.FC = () => {
 
     useEffect(() => {
         const fetchUserId = async () => {
-          const id = await getUserId();
-          setCurrentUserId(id);
+            const id = await getUserId();
+            setCurrentUserId(id);
         };
-    
-        fetchUserId();
-      }, []);
 
-      useEffect(() => {
+        fetchUserId();
+    }, []);
+
+    useEffect(() => {
         let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
-    
+
         const delayedSearch = () => {
             const fetchSearchResults = async () => {
                 try {
-                    const response = await axios.get('/users/search', {
-                        params: { query: searchQuery },
-                    });
-                    setSearchResults(response.data);
-                } catch (error) {
-                    console.error('Failed to fetch search results:', error);
+                    if (!searchQuery) {
+                        setSearchResults([] as User[]);
+                    } else if (searchQuery.length < 2) {
+                        setSearchResults([] as User[]);
+                    } else {
+                        const response = await axios.get('/users/search', {
+                            params: { query: searchQuery },
+                        });
+                        setSearchResults(response.data);
+                    }
+                } catch (error) { 
+                    console.error('Failed to fetch search results:', error); 
                 }
             };
-    
+
             debounceTimeout = setTimeout(fetchSearchResults, 500);
         };
-    
+
         debounceTimeout && clearTimeout(debounceTimeout);
         delayedSearch();
-    
+
         return () => {
             debounceTimeout && clearTimeout(debounceTimeout);
         };
     }, [searchQuery]);
-    
+
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(event.target.value);
@@ -94,7 +100,7 @@ const SearchComponent: React.FC = () => {
                                     </p>
                                 </div>
                                 {currentUserId !== result?._id && (
-                                 <Follow followerId={currentUserId} followingId={result?._id} />
+                                    <Follow followerId={currentUserId} followingId={result?._id} />
                                 )}
                             </span>
                         </Link>

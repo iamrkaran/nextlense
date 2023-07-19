@@ -1,39 +1,34 @@
 "use client";
-import { getUserId } from '@/utils/session'
+import { getUserId } from '@/utils/session';
 import { useState, useEffect, useMemo } from 'react';
-import axios from '@/config/axiosInstance'
+import axios from '@/config/axiosInstance';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
 import Layout from '@/components/Layout';
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation';
 import Follow from '@/components/Follow';
 import ProfileMenu from '@/components/ProfileMenu';
 import { HashLoader } from 'react-spinners';
-
-
 
 const UserProfile = () => {
   const { username } = useParams();
   const { theme, setTheme } = useTheme();
   const [checked, setChecked] = useState(theme === 'dark');
-  const [userId, SetUserId] = useState<any>(null);
-  const [userData, SetUserData] = useState<any>(null);
-  const [userPosts, SetUserPosts] = useState<any[]>([]);
+  const [userId, setUserId] = useState<any>(null);
+  const [userData, setUserData] = useState<any>(null);
+  const [userPosts, setUserPosts] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('POSTS');
   const [currentUserId, setCurrentUserId] = useState<any>(null);
   const [savedUserPosts, setSavedUserPosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-
   const savedPosts = useMemo(() => {
     return savedUserPosts.filter((post) => post.saved);
-  }
-    , [savedUserPosts]);
+  }, [savedUserPosts]);
+
   const taggedPosts = useMemo(() => {
     return userPosts.filter((post) => post.tagged);
-  }
-    , [userPosts]);
-
+  }, [userPosts]);
 
   const filteredPosts = useMemo(() => {
     if (activeTab === 'POSTS') {
@@ -46,19 +41,20 @@ const UserProfile = () => {
     return [];
   }, [activeTab, userPosts, savedUserPosts, taggedPosts]);
 
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (username) {
-          const response = await axios.get(`/users/allusers/${username}`);
-          SetUserData(response.data);
-          SetUserId(response.data._id);
+          const { data: userData } = await axios.get(`/users/allusers/${username}`);
+          setUserData(userData);
+          setUserId(userData._id);
           setIsLoading(false);
-          const postsResponse = await axios.get(`/users/${response.data._id}/posts`);
-          SetUserPosts(postsResponse.data);
-          const savedPostsResponse = await axios.get(`/users/savedPosts?userId=${response.data._id}`);
-          setSavedUserPosts(savedPostsResponse.data);
+
+          const { data: postsResponse } = await axios.get(`/users/${userData._id}/posts`);
+          setUserPosts(postsResponse);
+
+          const { data: savedPostsResponse } = await axios.get(`/users/savedPosts?userId=${userData._id}`);
+          setSavedUserPosts(savedPostsResponse);
           setIsLoading(false);
         }
       } catch (error) {
@@ -66,9 +62,9 @@ const UserProfile = () => {
         setIsLoading(false);
       }
     };
+
     fetchData();
   }, [username]);
-
 
   const router = useRouter();
 
@@ -80,7 +76,6 @@ const UserProfile = () => {
 
     fetchUserId();
   }, []);
-
   return (
 
     <>

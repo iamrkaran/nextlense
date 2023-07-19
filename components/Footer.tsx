@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FaHome, FaSearch, FaPlusSquare, FaHeart, FaUserCircle } from 'react-icons/fa';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
@@ -7,28 +7,39 @@ import { getUsername, getPicture } from '@/utils/session'
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
+type UserData = {
+  username: string | null;
+  picture: string | null;
+};
+
 const Footer = () => {
   const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [userData, setUserData] = useState<{ username: string | null, picture: string | null }>({ username: null, picture: null });
   const router = usePathname();
+  const [userData, setUserData] = useState<UserData>({ username: null, picture: null });
+  const [mounted, setMounted] = useState(false);
 
-  // console.log(router);
+    // Memoize the fetchUserData function using useMemo
+  const fetchUserData = useMemo(async () => {
+    const userNameData = await getUsername();
+    const userPicDataUrl = await getPicture();
+    return { username: userNameData, picture: userPicDataUrl };
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      // Use the intermediate state variable to set the userData state
+      const updateUserData = async () => {
+        const data = await fetchUserData;
+        setUserData(data);
+      };
+      updateUserData();
+    }
+  }, [mounted, fetchUserData]);
+
 
   useEffect(() => {
     setMounted(true);
-  }, []); 
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const userNameData = await getUsername();
-      const userPicDataUrl = await getPicture();
-      setUserData({ username: userNameData, picture: userPicDataUrl });
-    };
-    fetchUserData();
   }, []);
-
-  if (!mounted) return null;
 
   return (
     <footer
