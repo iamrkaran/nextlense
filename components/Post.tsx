@@ -20,6 +20,7 @@ import Follow from "./Follow";
 import ViewAllComments from "./ViewAllComments";
 import Comment from "./Comment";
 import EditPost from "./EditPost";
+import Link from "next/link";
 
 type Post = {
     _id: string;
@@ -127,7 +128,11 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
                         height={24}
                         className="rounded-full"
                     />
-                    <h3 className="text-sm font-semibold">{postUser?.username}</h3>
+                    <h3 className="text-sm text-blue-600 font-semibold">
+                        <Link href={`/users/${postUser?.username}`} passHref>
+                            {postUser?.username}
+                        </Link>
+                    </h3>
 
                     {session?.user?.id !== postUser?._id && (
                         <Follow followerId={session?.user?.id} followingId={postUser?._id} />

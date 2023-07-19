@@ -1,30 +1,37 @@
 "use client"
-import React from 'react'
-import { useSession , signIn , signOut } from 'next-auth/react'
+import React, { useState, useEffect } from 'react';
 
-type Props = {}
+import { getUserId, getUsername, getPicture } from '@/utils/session';
 
-const Test = (props: Props) => {
-    const { data: session, status } = useSession()
+type Props = {};
+
+const Test: React.FC<Props> = () => {
+  const [user, setUser] = useState<string>('');
+  const [picture, setPicture] = useState<string>('');
+  const [username, setUsername] = useState<string>('');
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const userId = await getUserId();
+      setUser(userId as string);
+
+      const username = await getUsername();
+      setUsername(username as string);
+
+      const picture = await getPicture();
+      setPicture(picture as string);
+    };
+    fetchUsers();
+  }, []);
+
   return (
     <div>
-        {status === 'loading' && <div className='flex mt-16'>Loading...</div>}
-        {status === 'authenticated' && (
-            <div className='mt-16'>
-                Signed in as {session?.user?.email ?? 'unknown email'}
-                <button className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded' onClick={() => signOut()}>Sign out</button>
-            </div>
-        )}
-        {status === 'unauthenticated' && (
-            <div className='mt-20'>Not signed in
-                <button className='bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded' onClick={() => signIn()}>Sign in</button>
-
-            </div>
-        )}
-
+      <h1>Test</h1>
+      <h2>User ID: {user}</h2>
+      <h2>Username: {username}</h2>
+      <img src={picture} alt="Profile Picture" />
     </div>
-  )
-}
-
+  );
+};
 
 export default Test;

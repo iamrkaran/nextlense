@@ -1,10 +1,12 @@
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAction, createAsyncThunk, createReducer, PayloadAction } from '@reduxjs/toolkit';
 import axios from '@/config/axiosInstance';
+import { ThunkAction } from 'redux-thunk';
 import { RootState } from '@/config/store';
 
 // Types
 type Comment = {
   _id: string;
+  postId: string;
   user: string;
   text: string;
   createdDate: Date;
@@ -23,46 +25,40 @@ const initialState: CommentState = {
   error: null,
 };
 
-// Slice
-const commentSlice = createSlice({
-  name: 'comments',
-  initialState,
-  reducers: {
-    fetchCommentStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchComment.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchComment.fulfilled, (state, action) => {
-        state.loading = false;
-        state.comments = action.payload;
-      })
-      .addCase(fetchComment.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      });
-  },
-});
+// Actions
+const fetchCommentsStart = createAction('comments/fetchCommentsStart');
+const fetchCommentsSuccess = createAction<Comment[]>('comments/fetchCommentsSuccess');
+const fetchCommentsFailure = createAction<string>('comments/fetchCommentsFailure');
 
 // Async Thunk Action Creator
-export const fetchComment = createAsyncThunk<Comment[], string>(
-  'comments/fetchComment',
-  async (postId, { dispatch }) => {
+export const fetchComments = createAsyncThunk(
+  'comments/fetchComments',
+  async (postId: string, { dispatch }) => {
     try {
-      dispatch(commentSlice.actions.fetchCommentStart());
-      const response = await axios.get<Comment[]>(`/posts/${postId}/comments`);
-      console.log(response.data);
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to fetch comments');
+      dispatch(fetchCommentsStart());
+      const response = await axios.get<Comment[]>(`/comments?postId=${postId}`);
+      dispatch(fetchCommentsSuccess(response.data));
+    } catch (error:any) {
+      dispatch(fetchCommentsFailure(error.message));
     }
   }
 );
 
-export default commentSlice.reducer;
+// Reducer
+const commentReducer = createReducer(initialState, (builder) => {
+  builder
+    .addCase(fetchCommentsStart, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(fetchCommentsSuccess, (state, action) => {
+      state.loading = false;
+      state.comments = action.payload;
+    })
+    .addCase(fetchCommentsFailure, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    });
+});
+
+export default commentReducer;
