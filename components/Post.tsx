@@ -38,6 +38,13 @@ type PostComponentProps = {
     refreshData: () => void;
 };
 
+type NotificationData = {
+    type: 'like' | 'comment';
+    postId: string;
+    sender: string;
+    timestamp: Date;
+};
+
 const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
     const [liked, setLiked] = useState(false);
     const dispatch = useDispatch();
@@ -48,8 +55,15 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
     const [isLikeVisible, setIsLikeVisible] = useState(true);
     const [isCommentVisible, setIsCommentVisible] = useState(true);
 
-    const handleToggleModal = () => {
+    const [notificationData, setNotificationData] = useState<NotificationData>({
+        type: 'like',
+        postId: post._id,
+        sender: session?.user?.id ?? '',
+        timestamp: new Date(),
+    });
 
+
+    const handleToggleModal = () => {
         setIsModelOpen(!isModalOpen);
     }
 
@@ -68,15 +82,35 @@ const PostComponent = ({ post, session, refreshData }: PostComponentProps) => {
                 userId: session?.user?.id,
             });
 
+
             if (response.status === 200) {
                 setLiked(!updatedFollowingStatus);
                 refreshData();
+                sendNotification();
             }
         } catch (error) {
             console.error(error);
             setLiked(!liked);
         }
     };
+
+    const sendNotification = async () => {
+        try {
+            const notificationResponse = await axios.post("/notifications", {
+                ...notificationData,
+                type: 'like',
+                sender: session?.user?.id,
+                timestamp: new Date(),
+            });
+            if (notificationResponse.status === 200) {
+                console.log('Notification sent');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+
 
     const [postUser, setPostUser] = useState<any>(null);
 
