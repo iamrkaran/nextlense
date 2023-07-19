@@ -110,7 +110,7 @@ const ChatLayout: React.FC<ChatLayoutProps> = ({
                             <p className="text-xs text-gray-600">Active {new Date().toLocaleString()}</p>
                         </div>
                     </div>
-                    <div className="flex text-2xl items-center space-x-4">
+                    <div className="flex items-center space-x-2">
                         <FaPhone className="text-gray-600 cursor-pointer" />
                         <FaVideo className="text-gray-600 cursor-pointer" />
                         <FaUserCircle className="text-gray-600 cursor-pointer" />

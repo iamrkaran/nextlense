@@ -7,18 +7,19 @@ import axiosInstance from '@/config/axiosInstance';
 import ChatLayout from '@/components/ChatLayout';
 import { getUserId, getUsername, getPicture } from '@/utils/session';
 import Layout from '@/components/Layout';
+import Link from 'next/link';
 
 type User = {
-  _id: string; 
+  _id: string;
   name: string;
   username: string;
   picture: string;
   lastInteraction: number;
-  lastMessage: Date; 
+  lastMessage: Date;
 };
 
 const MessagesPage = () => {
- 
+
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -124,10 +125,15 @@ const MessagesPage = () => {
 
 
   return (
-    <Layout>
-    <div className="flex h-screen bg-gray-900">
+
+    <div className="flex w-full h-full bottom-5 bg-gray-900">
       <div className="w-1/4 border-r p-4 overflow-y-auto">
-        <h1 className="text-2xl font-bold mb-4">Message App</h1>
+        <div className="p-4 space-x-4">
+        <Link href="/home">
+          <span className='bg-blue-600 p-2 text-gray-100 rounded-md'> Home</span>
+        </Link>
+        </div>
+
         <div className="flex flex-col space-y-2">
           {users.map((user, index) => (
             <div
@@ -154,7 +160,7 @@ const MessagesPage = () => {
               </div>
             </div>
           ))}
-        </div>
+          </div>
       </div>
       <div className="flex-grow">
         <div className="flex items-center justify-center h-full">
@@ -207,7 +213,7 @@ const MessagesPage = () => {
         </MModalComponent>
       )}
     </div>
-    </Layout>
+
   );
 };
 
