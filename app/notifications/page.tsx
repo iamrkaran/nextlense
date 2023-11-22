@@ -34,7 +34,7 @@ const Page: React.FC<Props> = (props: Props) => {
       try {
         const response = await axiosInstance.get('/notifications/fetch');
         setNotifications(response.data);
-        setLoading(false);
+        
       } catch (error) {
         console.error('Failed to fetch notifications:', error);
         setLoading(false);
@@ -63,15 +63,17 @@ const Page: React.FC<Props> = (props: Props) => {
       const userResponse = await axiosInstance.get(`/users/${userId}`);
       const user = userResponse.data;
       return user.name;
+      setLoading(false);
     } catch (error) {
       console.error('Failed to fetch user data:', error);
+      setLoading(false);
       return '';
     }
   };
 
   return (
     <Layout>
-      <div className="p-4">
+      <div className="p-4 b-8">
         <h1 className="text-2xl font-semibold mb-4">Notifications</h1>
         {loading ? (
           <div className="flex items-center justify-center">
