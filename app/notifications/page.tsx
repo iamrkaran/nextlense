@@ -63,10 +63,8 @@ const Page: React.FC<Props> = (props: Props) => {
       const userResponse = await axiosInstance.get(`/users/${userId}`);
       const user = userResponse.data;
       return user.name;
-      setLoading(false);
     } catch (error) {
       console.error('Failed to fetch user data:', error);
-      setLoading(false);
       return '';
     }
   };
