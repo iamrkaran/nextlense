@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import axiosInstance from '@/config/axiosInstance';
 import fetchUserDataById from '@/utils/fetchUserDataById';
+import { HashLoader } from 'react-spinners';
 
 type Post = {
   _id: string;
@@ -26,15 +27,17 @@ type Props = {};
 const Page: React.FC<Props> = (props: Props) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [senderNames, setSenderNames] = useState<{ [key: string]: string }>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch notifications from the API
     const fetchNotifications = async () => {
       try {
         const response = await axiosInstance.get('/notifications/fetch');
         setNotifications(response.data);
+        setLoading(false);
       } catch (error) {
         console.error('Failed to fetch notifications:', error);
+        setLoading(false);
       }
     };
 
@@ -42,12 +45,11 @@ const Page: React.FC<Props> = (props: Props) => {
   }, []);
 
   useEffect(() => {
-    // Fetch sender names for each notification
     const fetchSenderNames = async () => {
-      const senderNamePromises = notifications.map((notification) => fetchUser(notification.sender));
+      const senderNamePromises = notifications.map((notification:any) => fetchUser(notification.sender));
       const senderNamesData = await Promise.all(senderNamePromises);
       const updatedSenderNames: { [key: string]: string } = {};
-      notifications.forEach((notification, index) => {
+      notifications.forEach((notification:any, index:number) => {
         updatedSenderNames[notification.sender] = senderNamesData[index];
       });
       setSenderNames(updatedSenderNames);
@@ -71,11 +73,15 @@ const Page: React.FC<Props> = (props: Props) => {
     <Layout>
       <div className="p-4">
         <h1 className="text-2xl font-semibold mb-4">Notifications</h1>
-        {notifications.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center">
+            <HashLoader color="#4F46E5" size={40} />
+          </div>
+        ) : notifications.length === 0 ? (
           <p className="text-gray-500">No notifications yet.</p>
         ) : (
           <ul className="space-y-4">
-            {notifications.map((notification, index) => (
+            {notifications.slice().reverse().map((notification:any, index:number) => (
               <li key={index}>
                 {notification.type === 'like' ? (
                   <p>
